@@ -158,6 +158,8 @@ module SunspotMatchers
           FacetMatcher
         when :order_by
           OrderByMatcher
+        when :order_by_geodist
+          OrderByGeodistMatcher
         when :paginate
           PaginationMatcher
         when :group
@@ -247,6 +249,48 @@ module SunspotMatchers
 
     def direction_wildcard?
       @args.length == 2 && @args.last == any_param
+    end
+
+    def args
+      return @args unless direction_wildcard?
+      @args[0...-1] + [:asc]
+    end
+
+    def build_comparison_search
+      if field_wildcard?
+        @comparison_params = {:sort => any_param}
+      elsif direction_wildcard?
+        super
+        @comparison_params = comparison_params
+        @comparison_params[:sort].gsub!("asc", any_param)
+      else
+        super
+      end
+    end
+  end
+
+  class OrderByGeodistMatcher < BaseMatcher
+    def search_method
+      :order_by_geodist
+    end
+
+    def keys_to_compare
+      [:sort]
+    end
+
+    def wildcard_matcher_for_keys
+      return {:sort => /./} if field_wildcard?
+      param = comparison_params[:sort]
+      regex = Regexp.new(param.gsub(any_param, '.*'))
+      {:sort => regex}
+    end
+
+    def field_wildcard?
+      @args.first == any_param
+    end
+
+    def direction_wildcard?
+      @args.length == 3 && @args.last == any_param
     end
 
     def args
