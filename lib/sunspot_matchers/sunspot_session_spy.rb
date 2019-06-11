@@ -1,6 +1,7 @@
 module SunspotMatchers
   class SunspotSearchSpy < Sunspot::Search::StandardSearch
     def execute
+      @solr_result = {}
       self
     end
     def solr_response
