@@ -156,6 +156,8 @@ module SunspotMatchers
           BoostMatcher
         when :facet
           FacetMatcher
+        when :json_facet
+          JsonFacetMatcher
         when :order_by
           OrderByMatcher
         when :order_by_geodist
@@ -224,6 +226,16 @@ module SunspotMatchers
 
     def keys_to_compare
       comparison_params.keys.select {|key| /facet/ =~ key.to_s}
+    end
+  end
+
+  class JsonFacetMatcher < BaseMatcher
+    def search_method
+      :json_facet
+    end
+
+    def keys_to_compare
+      comparison_params.keys.select {|key| /json.facet/ =~ key.to_s}
     end
   end
 
